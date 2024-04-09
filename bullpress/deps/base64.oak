@@ -63,8 +63,8 @@ fn decode(input) {
       index4 := CHARACTERS |> str.indexOf(getInputCI())
   
       a := b!.shiftLeft(index1, 2) |> int() | b!.shiftRight(index2, 4) |> int()
-      b := b!.shiftLeft(index2 & 15, 4) | b!.shiftRight(index3, 2)
-      c := b!.shiftLeft(index3 & 3, 6) | index4
+      b := b!.shiftLeft(index2 & 15, 4) |> int() | b!.shiftRight(index3, 2) |> int()
+      c := b!.shiftLeft(index3 & 3, 6) |> int() | index4 |> int()
 
       output << a |> char()
       if index3 != 64 -> output << b |> char()
