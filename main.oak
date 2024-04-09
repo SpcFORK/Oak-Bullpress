@@ -1,0 +1,5 @@
+std := import('std')
+
+cowrle := import('bullpress/deps/cowrle')
+
+cowrle.encodeCOWRLE('I am a teeeest') |> cowrle.decodeCOWRLE() |> std.println()

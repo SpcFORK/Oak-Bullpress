@@ -1,0 +1,16 @@
+hidden = [".config"]
+
+entrypoint = "main.oak"
+run = "oak main.oak"
+onBoot = "chmod +x .config/bin/oak"
+
+[nix]
+channel = "stable-21_11"
+
+[env]
+XDG_CONFIG_HOME = "/home/runner/.config"
+PATH = "/home/runner/$REPL_SLUG/.config/bin:$PATH"
+
+[[ports]]
+localPort = 9999
+externalPort = 80

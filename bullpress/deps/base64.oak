@@ -1,0 +1,76 @@
+str := import('str')
+std := import('std')
+b! := import('bin')
+
+CHARACTERS := 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+fn encode(input) {
+  input <- input |> std.default('')
+
+  output := ''
+  i := 0
+  fn incI() i <- i + 1
+
+  with std.loop() fn(ic, breaker) if {
+    i < input |> len() -> {
+      fn getInputCPI() input.(incI() - 1) |> codepoint() |> std.default(0)
+    
+      a := getInputCPI()
+      b := getInputCPI()
+      c := getInputCPI()
+      
+      index1 := b!.shiftRight(a, 2)
+      index2 := (b!.shiftLeft(a & 3, 4) |> int()) | (b!.shiftRight(b, 4) |> int())
+      
+      index3 := if type(b) != :int {
+        true -> 64 
+        false -> b!.shiftLeft(b & 15, 2) |> int() | b!.shiftRight(c, 6) |> int()
+      }
+      
+      index4 := if type(b) != :int {
+        true -> 64
+        false -> c & 63
+      }
+
+      [index1, index2, index3, index4] |> with std.each() fn(ii, ic) {
+        output << CHARACTERS.(ii |> int())
+      }
+    }
+
+    _ -> breaker(output)
+  }
+}
+
+fn decode(input) {
+  input <- input |> std.default('')
+
+  output := ''
+  i := 0
+  fn incI() i <- i + 1
+  
+  cleanedInput := ''
+  with std.each(input) fn(char) {
+    if CHARACTERS |> std.contains?(char) -> cleanedInput << char
+  }
+
+  with std.loop() fn(ic, breaker) if {
+    i < len(cleanedInput) -> {
+      fn getInputCI() cleanedInput.(incI() - 1)
+      
+      index1 := CHARACTERS |> str.indexOf(getInputCI())
+      index2 := CHARACTERS |> str.indexOf(getInputCI())
+      index3 := CHARACTERS |> str.indexOf(getInputCI())
+      index4 := CHARACTERS |> str.indexOf(getInputCI())
+  
+      a := b!.shiftLeft(index1, 2) |> int() | b!.shiftRight(index2, 4) |> int()
+      b := b!.shiftLeft(index2 & 15, 4) | b!.shiftRight(index3, 2)
+      c := b!.shiftLeft(index3 & 3, 6) | index4
+
+      output << a |> char()
+      if index3 != 64 -> output << b |> char()
+      if index4 != 64 -> output << c |> char()
+    }
+
+    _ -> breaker(output)
+  }
+}

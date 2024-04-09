@@ -1,0 +1,89 @@
+std := import('std')
+str := import('str')
+math := import('math')
+
+fn toBin(number) {
+  pl := ''
+
+  with std.loop() fn(amm, breaker) {
+    if number > 0 {
+      true -> {
+        pl <- (number |> int() % 2) |> string() + pl
+        number <- int(number / 2)
+      }
+
+      _ -> breaker(pl |> std.default('0'))
+    }
+  }
+}
+
+fn intToU64B(num) {
+  binVal := toBin(num)
+  
+  if len(binVal) <= 64 {
+    true -> binVal |> str.padStart(64, '0')
+    _ -> ?
+  }
+}
+
+fn fromBin(encodedNumber) {
+  result := 0
+
+  with std.range(len(encodedNumber)) |> std.each() fn(item, count) {
+    if encodedNumber.(len(encodedNumber) - 1 - count) = '1' -> {
+      result <- result + math.pow(2, count)
+    }
+  }
+
+  result
+}
+
+// ---
+
+// Bitwise
+
+fn bitwiseNOT(a, spr?) {
+  spr? <- spr? |> std.default(64)
+  
+  aBin := intToU64B(a)
+  result := ''
+
+  with std.range(spr?) |> std.each() fn(i?, i) {
+    result << if aBin.(i) = '1' {
+      true -> '0'
+      false -> '1'
+    }
+  }
+
+  fromBin(result)
+}
+
+fn shiftLeft(num, shiftAmount, spr?) {
+  spr? <- spr? |> std.default(64)
+  
+  binNum := intToU64B(num)
+  shifted := binNum + str._extend('0', shiftAmount)
+  rtv := str.slice(shifted, shiftAmount, spr? + shiftAmount)
+  
+  fromBin(rtv)
+}
+
+fn shiftRight(num, shiftAmount, spr?) {
+  spr? <- spr? |> std.default(64)
+  
+  binNum := intToU64B(num)
+  
+  filler := if binNum.0 = '1' {
+    true -> '1' 
+    false -> '0' 
+  }
+  
+  shifted := str._extend(filler, shiftAmount) + binNum
+  fromBin(str.slice(shifted, 0, spr?))
+}
+
+fn unsignedShiftRight(num, shiftAmount) {
+  binNum := intToU64B(num)
+  shifted := str.repeat('0', shiftAmount) + binNum
+  fromBin(str.slice(shifted, shiftAmount))
+}

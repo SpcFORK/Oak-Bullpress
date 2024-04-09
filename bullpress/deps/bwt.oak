@@ -1,0 +1,54 @@
+std := import('std')
+{ sort!: sort! } := import('sort')
+
+burrowsWheelerTransform(input) {
+  rotations := []
+
+  len(input) |> std.range() |> with std.each() fn(ii, ic) {
+    rotation := std.slice(input, ic) + std.slice(input, 0, ic)
+    rotations << rotation
+  }
+
+  rotations |> sort!()
+
+  transformedString := ''
+  with std.each(rotations) fn(ii, ic) {
+    transformedString << ii.(len(input) - 1)
+  }
+
+  originalIndex := ?
+  with std.each(rotations) fn(ii, ic) {
+    if originalIndex = ? & ii = input -> originalIndex <- i
+  }
+
+  {{
+    transformedString: transformedString
+    originalIndex: originalIndex
+  }}
+}
+
+inverseBurrowsWheelerTransform(transformedString, originalIndex) {
+  table := []
+
+  len(transformedString) |> std.range() |> with std.each() fn(ii, ic) {
+    table << { 
+      char: transformedString.(ic)
+      index: ic 
+    }
+  }
+
+  table |> sort!(fn(a, b) if [a.char < b.char, a.char > b.char] {
+    [true, _] -> -1
+    [_, true] -> 1
+    _ -> 0
+  })
+
+  originalString := ''
+  currentIndex := originalIndex
+  len(transformedString) |> std.range() |> with std.each() fn(ii, ic) {
+    originalString << table.(currentIndex).char
+    currentIndex <- table.(currentIndex).index
+  }
+
+  originalString
+}
